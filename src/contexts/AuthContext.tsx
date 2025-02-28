@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string): Promise<void> => {
     try {
       setIsLoading(true);
       
@@ -77,8 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Account created successfully",
         description: "Please check your email to confirm your account.",
       });
-
-      return data;
     } catch (error: any) {
       toast({
         title: "Registration failed",
@@ -91,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
       setIsLoading(true);
       
@@ -106,8 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Logged in successfully",
         description: "Welcome back!",
       });
-
-      return data;
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -120,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
@@ -140,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     isLoading,
