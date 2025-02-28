@@ -1,39 +1,30 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthForm } from "@/components/auth/AuthForm";
 import { Shield } from "lucide-react";
-import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
-  const handleSubmit = async (data: { email: string; password: string }) => {
-    setIsLoading(true);
-    
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      // TODO: Replace with actual authentication once Supabase is connected
-      console.log("Login attempt:", data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome back!",
-      });
-      
+      setIsLoading(true);
+      await signIn(data.email, data.password);
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -45,14 +36,10 @@ export default function Login() {
         {/* Left side - animated gradient */}
         <div className="hidden lg:block relative overflow-hidden rounded-3xl">
           <div className="absolute inset-0 bg-gradient-to-br from-safeher-400 via-safeher-500 to-safeher-600" />
-          <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20" />
+          <div className="absolute inset-0 opacity-20" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center text-center p-6 text-white">
             <Shield className="h-12 w-12 mb-4" />
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-            >
+            <div>
               <h1 className="mb-3 text-3xl font-bold">SafeHer</h1>
               <p className="mb-6 text-lg text-white/90">
                 Your personal safety companion that protects you wherever you go.
@@ -71,7 +58,7 @@ export default function Login() {
                   <p className="text-sm">Real-time location sharing</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
         
@@ -82,13 +69,74 @@ export default function Login() {
             <span>SafeHer</span>
           </Link>
           
-          <AuthForm mode="login" onSubmit={handleSubmit} isLoading={isLoading} />
-          
-          <div className="mt-6 text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-safeher-600 hover:underline">
-              Create one
-            </Link>
+          <div className="w-full max-w-md space-y-6">
+            <div className="space-y-2 text-center">
+              <h1 className="text-3xl font-bold tracking-tight">
+                Welcome back
+              </h1>
+              <p className="text-muted-foreground">
+                Enter your email to sign in to your account
+              </p>
+            </div>
+            
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  {...register("email", { 
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Invalid email address",
+                    }
+                  })}
+                  className={errors.email ? "border-red-500" : ""}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password", { 
+                      required: "Password is required"
+                    })}
+                    className={errors.password ? "border-red-500" : ""}
+                  />
+                </div>
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password.message}</p>
+                )}
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full bg-safeher-600 hover:bg-safeher-700" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center text-sm">
+              Don't have an account?{" "}
+              <Link to="/register" className="text-safeher-600 hover:underline">
+                Create one
+              </Link>
+            </div>
           </div>
         </div>
       </div>
