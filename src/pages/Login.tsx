@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormData {
   email: string;
@@ -16,6 +17,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
   const onSubmit = async (data: LoginFormData) => {
@@ -23,8 +25,17 @@ export default function Login() {
       setIsLoading(true);
       await signIn(data.email, data.password);
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
+      
+      // Handle specific error for unconfirmed email
+      if (error.code === "email_not_confirmed") {
+        toast({
+          title: "Email not confirmed",
+          description: "Please check your email and click the confirmation link before logging in.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

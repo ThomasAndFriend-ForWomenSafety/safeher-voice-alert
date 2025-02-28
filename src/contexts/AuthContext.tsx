@@ -110,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: error.message || "Incorrect email or password.",
         variant: "destructive",
       });
+      // Pass the error with its code to the caller
       throw error;
     } finally {
       setIsLoading(false);
